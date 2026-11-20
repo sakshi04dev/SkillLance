@@ -1,6 +1,6 @@
 package com.skilllance.controller;
 
-import com.skilllance.dto.UserDTO;
+import com.skilllance.dto.AuthResponse;
 import com.skilllance.entity.User;
 import com.skilllance.service.AuthService;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> register(@RequestBody User user) {
+    public ResponseEntity<AuthResponse> register(@RequestBody User user) {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(
+    public ResponseEntity<AuthResponse> login(
             @RequestParam String email,
             @RequestParam String password
     ) {
@@ -39,7 +39,9 @@ public class AuthController {
                     authService.login(email, password)
             );
         } catch (IllegalArgumentException exception) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .build();
         }
     }
 }
