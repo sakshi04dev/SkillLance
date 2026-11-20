@@ -1,5 +1,6 @@
 package com.skilllance.service;
 
+import com.skilllance.dto.AuthResponse;
 import com.skilllance.dto.UserDTO;
 import com.skilllance.entity.User;
 import com.skilllance.repository.UserRepository;
@@ -11,16 +12,19 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
-    public UserDTO register(User user) {
+    public AuthResponse register(User user) {
 
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email is already registered");
@@ -38,10 +42,18 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        return convertToDTO(savedUser);
+        String token = jwtService.generateToken(
+                savedUser.getEmail(),
+                savedUser.getRole()
+        );
+
+        return new AuthResponse(
+                token,
+                convertToDTO(savedUser)
+        );
     }
 
-    public UserDTO login(String email, String password) {
+    public AuthResponse login(String email, String password) {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
@@ -52,7 +64,15 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        return convertToDTO(user);
+        String token = jwtService.generateToken(
+                user.getEmail(),
+                user.getRole()
+        );
+
+        return new AuthResponse(
+                token,
+                convertToDTO(user)
+        );
     }
 
     private UserDTO convertToDTO(User user) {
