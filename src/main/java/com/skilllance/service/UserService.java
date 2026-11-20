@@ -16,8 +16,8 @@ public class UserService {
 
     public UserService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
-
+            PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -26,10 +26,6 @@ public class UserService {
 
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email is already registered");
-        }
-
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Password is required");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -60,7 +56,6 @@ public class UserService {
 
         if (updatedUser.getPassword() != null
                 && !updatedUser.getPassword().isBlank()) {
-
             existingUser.setPassword(
                     passwordEncoder.encode(updatedUser.getPassword())
             );
