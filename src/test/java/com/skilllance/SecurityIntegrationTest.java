@@ -3,8 +3,8 @@ package com.skilllance;
 import com.skilllance.service.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,10 +24,8 @@ class SecurityIntegrationTest {
     void protectedEndpointShouldRejectUnauthenticatedRequest()
             throws Exception {
 
-        mockMvc.perform(
-                get("/api/projects")
-        )
-        .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/projects"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -41,10 +39,7 @@ class SecurityIntegrationTest {
 
         mockMvc.perform(
                 get("/api/projects")
-                        .header(
-                                "Authorization",
-                                "Bearer " + token
-                        )
+                        .header("Authorization", "Bearer " + token)
         )
         .andExpect(status().isOk());
     }
@@ -55,10 +50,7 @@ class SecurityIntegrationTest {
 
         mockMvc.perform(
                 get("/api/projects")
-                        .header(
-                                "Authorization",
-                                "Bearer invalid.jwt.token"
-                        )
+                        .header("Authorization", "Bearer invalid.jwt.token")
         )
         .andExpect(status().isUnauthorized());
     }
