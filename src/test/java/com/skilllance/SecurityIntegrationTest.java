@@ -3,8 +3,8 @@ package com.skilllance;
 import com.skilllance.service.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,16 +21,15 @@ class SecurityIntegrationTest {
     private JwtService jwtService;
 
     @Test
-    void protectedEndpointShouldRejectUnauthenticatedRequest()
-            throws Exception {
+    void protectedEndpointShouldRejectUnauthenticatedRequest() throws Exception {
 
-        mockMvc.perform(get("/api/projects"))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(
+                get("/api/projects")
+        ).andExpect(status().isUnauthorized());
     }
 
     @Test
-    void protectedEndpointShouldAllowValidJwt()
-            throws Exception {
+    void protectedEndpointShouldAllowValidJwt() throws Exception {
 
         String token = jwtService.generateToken(
                 "test@skilllance.com",
@@ -39,19 +38,22 @@ class SecurityIntegrationTest {
 
         mockMvc.perform(
                 get("/api/projects")
-                        .header("Authorization", "Bearer " + token)
-        )
-        .andExpect(status().isOk());
+                        .header(
+                                "Authorization",
+                                "Bearer " + token
+                        )
+        ).andExpect(status().isOk());
     }
 
     @Test
-    void protectedEndpointShouldRejectInvalidJwt()
-            throws Exception {
+    void protectedEndpointShouldRejectInvalidJwt() throws Exception {
 
         mockMvc.perform(
                 get("/api/projects")
-                        .header("Authorization", "Bearer invalid.jwt.token")
-        )
-        .andExpect(status().isUnauthorized());
+                        .header(
+                                "Authorization",
+                                "Bearer invalid.jwt.token"
+                        )
+        ).andExpect(status().isUnauthorized());
     }
 }
