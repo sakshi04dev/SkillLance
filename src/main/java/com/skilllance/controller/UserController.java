@@ -1,5 +1,7 @@
+
 package com.skilllance.controller;
 
+import com.skilllance.dto.UserDTO;
 import com.skilllance.entity.User;
 import com.skilllance.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -7,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,40 +23,75 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.createUser(user));
+    public ResponseEntity<UserDTO> createUser(
+            @RequestBody User user
+    ) {
+        User createdUser = userService.createUser(user);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(convertToDTO(createdUser));
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+
+        List<UserDTO> users = userService.getAllUsers()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(
+            @PathVariable Long id
+    ) {
         return userService.getUserById(id)
+                .map(this::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserDTO> getUserByEmail(
+            @PathVariable String email
+    ) {
         return userService.getUserByEmail(email)
+                .map(this::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
+    public ResponseEntity<UserDTO> updateUser(
             @PathVariable Long id,
-            @RequestBody User user) {
-        return ResponseEntity.ok(userService.updateUser(id, user));
+            @RequestBody User user
+    ) {
+        User updatedUser = userService.updateUser(id, user);
+
+        return ResponseEntity.ok(
+                convertToDTO(updatedUser)
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id
+    ) {
         userService.deleteUser(id);
+
         return ResponseEntity.noContent().build();
+    }
+
+    private UserDTO convertToDTO(User user) {
+
+        return new UserDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 }
