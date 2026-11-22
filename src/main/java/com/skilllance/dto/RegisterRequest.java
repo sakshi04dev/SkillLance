@@ -2,6 +2,7 @@ package com.skilllance.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
@@ -18,6 +19,10 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Role is required")
+    @Pattern(
+            regexp = "CLIENT|FREELANCER",
+            message = "Role must be CLIENT or FREELANCER"
+    )
     private String role;
 
     public RegisterRequest() {
