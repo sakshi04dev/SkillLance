@@ -25,41 +25,29 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        try {
-            User user = new User(
-                    request.getName(),
-                    request.getEmail(),
-                    request.getPassword(),
-                    request.getRole()
-            );
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(authService.register(user));
+        User user = new User(
+                request.getName(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getRole()
+        );
 
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity
-                    .badRequest()
-                    .build();
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(authService.register(user));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest loginRequest
     ) {
-        try {
-            return ResponseEntity.ok(
-                    authService.login(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
-            );
 
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .build();
-        }
+        return ResponseEntity.ok(
+                authService.login(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
     }
 }
