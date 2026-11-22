@@ -2,8 +2,10 @@ package com.skilllance.controller;
 
 import com.skilllance.dto.AuthResponse;
 import com.skilllance.dto.LoginRequest;
+import com.skilllance.dto.RegisterRequest;
 import com.skilllance.entity.User;
 import com.skilllance.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +23,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
-            @RequestBody User user
+            @Valid @RequestBody RegisterRequest request
     ) {
         try {
+            User user = new User(
+                    request.getName(),
+                    request.getEmail(),
+                    request.getPassword(),
+                    request.getRole()
+            );
+
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(authService.register(user));
@@ -37,7 +46,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-            @RequestBody LoginRequest loginRequest
+            @Valid @RequestBody LoginRequest loginRequest
     ) {
         try {
             return ResponseEntity.ok(
