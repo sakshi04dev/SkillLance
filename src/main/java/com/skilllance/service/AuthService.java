@@ -26,8 +26,16 @@ public class AuthService {
 
     public AuthResponse register(User user) {
 
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email is already registered");
+        if (user == null) {
+            throw new IllegalArgumentException("User details are required");
+        }
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            throw new IllegalArgumentException("Name is required");
+        }
+
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email is required");
         }
 
         if (user.getPassword() == null || user.getPassword().isBlank()) {
@@ -38,7 +46,28 @@ public class AuthService {
             throw new IllegalArgumentException("Role is required");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String name = user.getName().trim();
+        String email = user.getEmail().trim().toLowerCase();
+        String role = user.getRole().trim().toUpperCase();
+
+        if (!role.equals("CLIENT") && !role.equals("FREELANCER")) {
+            throw new IllegalArgumentException(
+                    "Role must be CLIENT or FREELANCER"
+            );
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException(
+                    "Email is already registered"
+            );
+        }
+
+        user.setName(name);
+        user.setEmail(email);
+        user.setRole(role);
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
 
         User savedUser = userRepository.save(user);
 
@@ -55,13 +84,29 @@ public class AuthService {
 
     public AuthResponse login(String email, String password) {
 
-        User user = userRepository.findByEmail(email)
+        if (email == null || email.isBlank()
+                || password == null || password.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Invalid email or password"
+            );
+        }
+
+        String normalizedEmail = email.trim().toLowerCase();
+
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Invalid email or password")
+                        new IllegalArgumentException(
+                                "Invalid email or password"
+                        )
                 );
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+        if (!passwordEncoder.matches(
+                password,
+                user.getPassword()
+        )) {
+            throw new IllegalArgumentException(
+                    "Invalid email or password"
+            );
         }
 
         String token = jwtService.generateToken(
