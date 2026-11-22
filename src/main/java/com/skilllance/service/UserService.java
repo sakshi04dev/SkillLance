@@ -24,11 +24,23 @@ public class UserService {
 
     public User createUser(User user) {
 
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email is already registered");
+        validateUser(user);
+
+        String email = normalizeEmail(user.getEmail());
+        String role = normalizeRole(user.getRole());
+
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException(
+                    "Email is already registered"
+            );
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setName(user.getName().trim());
+        user.setEmail(email);
+        user.setRole(role);
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
 
         return userRepository.save(user);
     }
@@ -42,22 +54,83 @@ public class UserService {
     }
 
     public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+
+        if (email == null || email.isBlank()) {
+            return Optional.empty();
+        }
+
+        return userRepository.findByEmail(
+                normalizeEmail(email)
+        );
     }
 
     public User updateUser(Long id, User updatedUser) {
 
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (updatedUser == null) {
+            throw new IllegalArgumentException(
+                    "User details are required"
+            );
+        }
 
-        existingUser.setName(updatedUser.getName());
-        existingUser.setEmail(updatedUser.getEmail());
-        existingUser.setRole(updatedUser.getRole());
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "User not found"
+                        )
+                );
+
+        if (updatedUser.getName() == null
+                || updatedUser.getName().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Name is required"
+            );
+        }
+
+        if (updatedUser.getEmail() == null
+                || updatedUser.getEmail().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Email is required"
+            );
+        }
+
+        if (updatedUser.getRole() == null
+                || updatedUser.getRole().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Role is required"
+            );
+        }
+
+        String email = normalizeEmail(updatedUser.getEmail());
+        String role = normalizeRole(updatedUser.getRole());
+
+        userRepository.findByEmail(email)
+                .ifPresent(user -> {
+                    if (!user.getId().equals(existingUser.getId())) {
+                        throw new IllegalArgumentException(
+                                "Email is already registered"
+                        );
+                    }
+                });
+
+        existingUser.setName(
+                updatedUser.getName().trim()
+        );
+        existingUser.setEmail(email);
+        existingUser.setRole(role);
 
         if (updatedUser.getPassword() != null
                 && !updatedUser.getPassword().isBlank()) {
+
+            if (updatedUser.getPassword().length() < 8) {
+                throw new IllegalArgumentException(
+                        "Password must be at least 8 characters"
+                );
+            }
+
             existingUser.setPassword(
-                    passwordEncoder.encode(updatedUser.getPassword())
+                    passwordEncoder.encode(
+                            updatedUser.getPassword()
+                    )
             );
         }
 
@@ -67,9 +140,72 @@ public class UserService {
     public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("User not found");
+            throw new IllegalArgumentException(
+                    "User not found"
+            );
         }
 
         userRepository.deleteById(id);
+    }
+
+    private void validateUser(User user) {
+
+        if (user == null) {
+            throw new IllegalArgumentException(
+                    "User details are required"
+            );
+        }
+
+        if (user.getName() == null
+                || user.getName().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Name is required"
+            );
+        }
+
+        if (user.getEmail() == null
+                || user.getEmail().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Email is required"
+            );
+        }
+
+        if (user.getPassword() == null
+                || user.getPassword().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Password is required"
+            );
+        }
+
+        if (user.getPassword().length() < 8) {
+            throw new IllegalArgumentException(
+                    "Password must be at least 8 characters"
+            );
+        }
+
+        if (user.getRole() == null
+                || user.getRole().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Role is required"
+            );
+        }
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
+    }
+
+    private String normalizeRole(String role) {
+
+        String normalizedRole = role.trim().toUpperCase();
+
+        if (!normalizedRole.equals("CLIENT")
+                && !normalizedRole.equals("FREELANCER")) {
+            throw new IllegalArgumentException(
+                    "Role must be CLIENT or FREELANCER"
+            );
+        }
+
+        return normalizedRole;
     }
 }
