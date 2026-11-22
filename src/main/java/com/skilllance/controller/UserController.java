@@ -1,9 +1,10 @@
-
 package com.skilllance.controller;
 
+import com.skilllance.dto.UpdateUserRequest;
 import com.skilllance.dto.UserDTO;
 import com.skilllance.entity.User;
 import com.skilllance.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,12 +68,27 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable Long id,
-            @RequestBody User user
+            @Valid @RequestBody UpdateUserRequest request
     ) {
-        User updatedUser = userService.updateUser(id, user);
+        User existingUser = userService.getUserById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found")
+                );
+
+        User updatedUser = new User(
+                request.getName(),
+                request.getEmail(),
+                request.getPassword(),
+                existingUser.getRole()
+        );
+
+        User savedUser = userService.updateUser(
+                id,
+                updatedUser
+        );
 
         return ResponseEntity.ok(
-                convertToDTO(updatedUser)
+                convertToDTO(savedUser)
         );
     }
 
