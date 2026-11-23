@@ -2,6 +2,7 @@ package com.skilllance.controller;
 
 import com.skilllance.entity.Project;
 import com.skilllance.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,20 +21,29 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project) {
-        return ResponseEntity.status(HttpStatus.CREATED)
+    public ResponseEntity<Project> createProject(
+            @Valid @RequestBody Project project
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(projectService.createProject(project));
     }
 
     @GetMapping
     public ResponseEntity<List<Project>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+        return ResponseEntity.ok(
+                projectService.getAllProjects()
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<Project> getProjectById(
+            @PathVariable Long id
+    ) {
         try {
-            return ResponseEntity.ok(projectService.getProjectById(id));
+            return ResponseEntity.ok(
+                    projectService.getProjectById(id)
+            );
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.notFound().build();
         }
@@ -41,7 +51,8 @@ public class ProjectController {
 
     @GetMapping("/client/{clientId}")
     public ResponseEntity<List<Project>> getProjectsByClient(
-            @PathVariable Long clientId) {
+            @PathVariable Long clientId
+    ) {
         return ResponseEntity.ok(
                 projectService.getProjectsByClient(clientId)
         );
@@ -49,7 +60,8 @@ public class ProjectController {
 
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Project>> getProjectsByCategory(
-            @PathVariable String category) {
+            @PathVariable String category
+    ) {
         return ResponseEntity.ok(
                 projectService.getProjectsByCategory(category)
         );
@@ -57,7 +69,8 @@ public class ProjectController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Project>> getProjectsByStatus(
-            @PathVariable String status) {
+            @PathVariable String status
+    ) {
         return ResponseEntity.ok(
                 projectService.getProjectsByStatus(status)
         );
@@ -66,7 +79,8 @@ public class ProjectController {
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(
             @PathVariable Long id,
-            @RequestBody Project project) {
+            @Valid @RequestBody Project project
+    ) {
         try {
             return ResponseEntity.ok(
                     projectService.updateProject(id, project)
@@ -77,7 +91,9 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(
+            @PathVariable Long id
+    ) {
         try {
             projectService.deleteProject(id);
             return ResponseEntity.noContent().build();
