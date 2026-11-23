@@ -1,6 +1,7 @@
 package com.skilllance.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
 
@@ -12,21 +13,32 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Project title is required")
+    @Size(max = 150, message = "Project title must not exceed 150 characters")
     @Column(nullable = false)
     private String title;
 
+    @NotBlank(message = "Project description is required")
+    @Size(min = 20, max = 2000,
+            message = "Description must be between 20 and 2000 characters")
     @Column(nullable = false, length = 2000)
     private String description;
 
+    @NotNull(message = "Budget is required")
+    @Positive(message = "Budget must be greater than 0")
     @Column(nullable = false)
     private Double budget;
 
+    @NotBlank(message = "Category is required")
+    @Size(max = 100, message = "Category must not exceed 100 characters")
     @Column(nullable = false)
     private String category;
 
     @Column(nullable = false)
     private String status;
 
+    @NotNull(message = "Client ID is required")
+    @Positive(message = "Client ID must be greater than 0")
     @Column(nullable = false)
     private Long clientId;
 
@@ -55,12 +67,15 @@ public class Project {
 
     @PrePersist
     protected void onCreate() {
+
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
 
         if (status == null || status.isBlank()) {
             status = "OPEN";
+        } else {
+            status = status.trim().toUpperCase();
         }
     }
 
