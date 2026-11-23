@@ -14,7 +14,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -38,10 +40,22 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // Public authentication endpoints
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login"
                         ).permitAll()
+
+                        // User management
+                        .requestMatchers(
+                                "/api/users/**"
+                        ).hasAnyRole(
+                                "CLIENT",
+                                "FREELANCER"
+                        )
+
+                        // All other API endpoints require authentication
                         .anyRequest().authenticated()
                 )
 
