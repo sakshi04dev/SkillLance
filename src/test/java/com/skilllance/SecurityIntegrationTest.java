@@ -21,7 +21,8 @@ class SecurityIntegrationTest {
     private JwtService jwtService;
 
     @Test
-    void protectedEndpointShouldRejectUnauthenticatedRequest() throws Exception {
+    void protectedEndpointShouldRejectUnauthenticatedRequest()
+            throws Exception {
 
         mockMvc.perform(
                 get("/api/projects")
@@ -29,7 +30,8 @@ class SecurityIntegrationTest {
     }
 
     @Test
-    void protectedEndpointShouldAllowValidJwt() throws Exception {
+    void protectedEndpointShouldAllowValidJwt()
+            throws Exception {
 
         String token = jwtService.generateToken(
                 "test@skilllance.com",
@@ -46,7 +48,8 @@ class SecurityIntegrationTest {
     }
 
     @Test
-    void protectedEndpointShouldRejectInvalidJwt() throws Exception {
+    void protectedEndpointShouldRejectInvalidJwt()
+            throws Exception {
 
         mockMvc.perform(
                 get("/api/projects")
@@ -55,5 +58,50 @@ class SecurityIntegrationTest {
                                 "Bearer invalid.jwt.token"
                         )
         ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void usersEndpointShouldRejectUnauthenticatedRequest()
+            throws Exception {
+
+        mockMvc.perform(
+                get("/api/users")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void usersEndpointShouldAllowClientRole()
+            throws Exception {
+
+        String token = jwtService.generateToken(
+                "client@skilllance.com",
+                "CLIENT"
+        );
+
+        mockMvc.perform(
+                get("/api/users")
+                        .header(
+                                "Authorization",
+                                "Bearer " + token
+                        )
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void usersEndpointShouldAllowFreelancerRole()
+            throws Exception {
+
+        String token = jwtService.generateToken(
+                "freelancer@skilllance.com",
+                "FREELANCER"
+        );
+
+        mockMvc.perform(
+                get("/api/users")
+                        .header(
+                                "Authorization",
+                                "Bearer " + token
+                        )
+        ).andExpect(status().isOk());
     }
 }
