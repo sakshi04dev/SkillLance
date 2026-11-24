@@ -1,6 +1,7 @@
 package com.skilllance.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
 
@@ -20,18 +21,32 @@ public class Proposal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Project ID is required")
+    @Positive(message = "Project ID must be greater than 0")
     @Column(name = "project_id", nullable = false)
     private Long projectId;
 
+    @NotNull(message = "Freelancer ID is required")
+    @Positive(message = "Freelancer ID must be greater than 0")
     @Column(name = "freelancer_id", nullable = false)
     private Long freelancerId;
 
+    @NotNull(message = "Bid amount is required")
+    @Positive(message = "Bid amount must be greater than 0")
     @Column(nullable = false)
     private Double bidAmount;
 
+    @NotNull(message = "Estimated days are required")
+    @Positive(message = "Estimated days must be greater than 0")
     @Column(nullable = false)
     private Integer estimatedDays;
 
+    @NotBlank(message = "Cover letter is required")
+    @Size(
+            min = 20,
+            max = 3000,
+            message = "Cover letter must be between 20 and 3000 characters"
+    )
     @Column(nullable = false, length = 3000)
     private String coverLetter;
 
@@ -63,12 +78,15 @@ public class Proposal {
 
     @PrePersist
     protected void onCreate() {
+
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
 
         if (status == null || status.isBlank()) {
             status = "PENDING";
+        } else {
+            status = status.trim().toUpperCase();
         }
     }
 
