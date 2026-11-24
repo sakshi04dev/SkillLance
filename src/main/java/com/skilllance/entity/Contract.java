@@ -1,6 +1,7 @@
 package com.skilllance.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,24 +14,36 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Proposal ID is required")
+    @Positive(message = "Proposal ID must be greater than 0")
     @Column(nullable = false, unique = true)
     private Long proposalId;
 
+    @NotNull(message = "Project ID is required")
+    @Positive(message = "Project ID must be greater than 0")
     @Column(nullable = false)
     private Long projectId;
 
+    @NotNull(message = "Client ID is required")
+    @Positive(message = "Client ID must be greater than 0")
     @Column(nullable = false)
     private Long clientId;
 
+    @NotNull(message = "Freelancer ID is required")
+    @Positive(message = "Freelancer ID must be greater than 0")
     @Column(nullable = false)
     private Long freelancerId;
 
+    @NotNull(message = "Agreed amount is required")
+    @Positive(message = "Agreed amount must be greater than 0")
     @Column(nullable = false)
     private Double agreedAmount;
 
+    @NotNull(message = "Start date is required")
     @Column(nullable = false)
     private LocalDate startDate;
 
+    @NotNull(message = "End date is required")
     @Column(nullable = false)
     private LocalDate endDate;
 
@@ -66,12 +79,15 @@ public class Contract {
 
     @PrePersist
     protected void onCreate() {
+
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
 
         if (status == null || status.isBlank()) {
             status = "ACTIVE";
+        } else {
+            status = status.trim().toUpperCase();
         }
     }
 
