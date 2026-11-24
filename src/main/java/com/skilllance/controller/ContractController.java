@@ -76,7 +76,7 @@ public class ContractController {
             @PathVariable Long freelancerId
     ) {
         return ResponseEntity.ok(
-                contractService.getContractsByFreelancerId(clientId)
+                contractService.getContractsByFreelancerId(freelancerId)
         );
     }
 
