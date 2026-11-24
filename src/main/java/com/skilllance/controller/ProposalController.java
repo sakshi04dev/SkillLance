@@ -2,6 +2,7 @@ package com.skilllance.controller;
 
 import com.skilllance.entity.Proposal;
 import com.skilllance.service.ProposalService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,25 +22,24 @@ public class ProposalController {
 
     @PostMapping
     public ResponseEntity<Proposal> createProposal(
-            @RequestBody Proposal proposal) {
-
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(proposalService.createProposal(proposal));
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity.badRequest().build();
-        }
+            @Valid @RequestBody Proposal proposal
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(proposalService.createProposal(proposal));
     }
 
     @GetMapping
     public ResponseEntity<List<Proposal>> getAllProposals() {
-        return ResponseEntity.ok(proposalService.getAllProposals());
+        return ResponseEntity.ok(
+                proposalService.getAllProposals()
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Proposal> getProposalById(
-            @PathVariable Long id) {
-
+            @PathVariable Long id
+    ) {
         try {
             return ResponseEntity.ok(
                     proposalService.getProposalById(id)
@@ -51,8 +51,8 @@ public class ProposalController {
 
     @GetMapping("/project/{projectId}")
     public ResponseEntity<List<Proposal>> getProposalsByProject(
-            @PathVariable Long projectId) {
-
+            @PathVariable Long projectId
+    ) {
         return ResponseEntity.ok(
                 proposalService.getProposalsByProject(projectId)
         );
@@ -60,8 +60,8 @@ public class ProposalController {
 
     @GetMapping("/freelancer/{freelancerId}")
     public ResponseEntity<List<Proposal>> getProposalsByFreelancer(
-            @PathVariable Long freelancerId) {
-
+            @PathVariable Long freelancerId
+    ) {
         return ResponseEntity.ok(
                 proposalService.getProposalsByFreelancer(freelancerId)
         );
@@ -69,8 +69,8 @@ public class ProposalController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Proposal>> getProposalsByStatus(
-            @PathVariable String status) {
-
+            @PathVariable String status
+    ) {
         return ResponseEntity.ok(
                 proposalService.getProposalsByStatus(status)
         );
@@ -79,8 +79,8 @@ public class ProposalController {
     @PutMapping("/{id}")
     public ResponseEntity<Proposal> updateProposal(
             @PathVariable Long id,
-            @RequestBody Proposal proposal) {
-
+            @Valid @RequestBody Proposal proposal
+    ) {
         try {
             return ResponseEntity.ok(
                     proposalService.updateProposal(id, proposal)
@@ -92,8 +92,8 @@ public class ProposalController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProposal(
-            @PathVariable Long id) {
-
+            @PathVariable Long id
+    ) {
         try {
             proposalService.deleteProposal(id);
             return ResponseEntity.noContent().build();
